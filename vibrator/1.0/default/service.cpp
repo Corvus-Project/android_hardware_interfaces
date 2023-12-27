@@ -17,10 +17,14 @@
 
 #include <android/hardware/vibrator/1.0/IVibrator.h>
 #include <hidl/LegacySupport.h>
+#include <hwbinder/ProcessState.h>
 
 using android::hardware::vibrator::V1_0::IVibrator;
 using android::hardware::defaultPassthroughServiceImplementation;
 
 int main() {
+#ifdef ARCH_ARM_32
+    android::hardware::ProcessState::initWithMmapSize((size_t)8192);
+#endif
     return defaultPassthroughServiceImplementation<IVibrator>();
 }

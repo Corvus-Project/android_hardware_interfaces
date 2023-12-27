@@ -222,6 +222,10 @@ class HwcHalImpl : public V2_2::passthrough::detail::HwcHalImpl<Hal> {
     Error getDisplayCapabilities(
             Display display,
             std::vector<IComposerClient::DisplayCapability>* outCapabilities) override {
+        if (!mDispatch.getDisplayCapabilities) {
+            return Error::UNSUPPORTED;
+        }
+
         uint32_t count = 0;
         int32_t error = mDispatch.getDisplayCapabilities(mDevice, display, &count, nullptr);
         if (error != HWC2_ERROR_NONE) {

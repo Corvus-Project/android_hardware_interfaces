@@ -206,6 +206,19 @@ rescan:
 
 bool canSwitchRoleHelper(const std::string portName, PortRoleType type)  {
     std::string filename = appendRoleNodeHelper(portName, type);
+
+    if (type == PortRoleType::DATA_ROLE || type == PortRoleType::POWER_ROLE) {
+        std::string pd_filename = "/sys/class/power_supply/usb/pd_active";
+        std::string pd_active;
+
+        if (!readFile(pd_filename, pd_active)) {
+            if (pd_active == "0")
+                return false;
+        } else {
+            ALOGE("canSwitchRoleHelper: couldn't read %s", pd_filename.c_str());
+        }
+    }
+
     std::ofstream file(filename);
 
     if (file.is_open()) {
@@ -396,7 +409,7 @@ void* work(void* param) {
 
         for (int n = 0; n < nevents; ++n) {
             if (events[n].data.ptr)
-                (*(void (*)(int, struct data *payload))events[n].data.ptr)
+                (*(void (*)(uint32_t, struct data *payload))events[n].data.ptr)
                     (events[n].events, &payload);
         }
     }

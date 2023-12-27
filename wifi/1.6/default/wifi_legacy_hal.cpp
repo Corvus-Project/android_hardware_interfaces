@@ -1589,6 +1589,18 @@ wifi_error WifiLegacyHal::enableWifiTxPowerLimits(const std::string& iface_name,
     return global_func_table_.wifi_enable_tx_power_limits(getIfaceHandle(iface_name), enable);
 }
 
+std::pair<wifi_error, wifi_iface_concurrency_matrix*>
+WifiLegacyHal::getSupportedIfaceConcurrencyMatrix() {
+    wifi_iface_concurrency_matrix *iface_concurrency_matrix_ptr =
+            &iface_concurrency_matrix_;
+    wifi_error status = global_func_table_.wifi_get_supported_iface_concurrency_matrix(
+            global_handle_, iface_concurrency_matrix_ptr);
+    if (status != WIFI_SUCCESS)
+        return {status, nullptr};
+
+    return {status, iface_concurrency_matrix_ptr};
+}
+
 void WifiLegacyHal::invalidate() {
     global_handle_ = nullptr;
     iface_name_to_handle_.clear();

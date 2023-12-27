@@ -46,6 +46,8 @@ void currentFunctionsAppliedCallback(bool functionsApplied, void* payload) {
 }
 
 Return<void> UsbGadget::getCurrentUsbFunctions(const sp<V1_0::IUsbGadgetCallback>& callback) {
+    if (!callback) return Void();
+
     Return<void> ret = callback->getCurrentUsbFunctionsCb(
             mCurrentUsbFunctions, mCurrentUsbFunctionsApplied ? Status::FUNCTIONS_APPLIED
                                                               : Status::FUNCTIONS_NOT_APPLIED);

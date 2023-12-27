@@ -17,10 +17,14 @@
 
 #include <android/hardware/boot/1.0/IBootControl.h>
 #include <hidl/LegacySupport.h>
+#include <hwbinder/ProcessState.h>
 
 using ::android::hardware::boot::V1_0::IBootControl;
 using android::hardware::defaultPassthroughServiceImplementation;
 
 int main (int /* argc */, char * /* argv */ []) {
+#ifdef ARCH_ARM_32
+    android::hardware::ProcessState::initWithMmapSize((size_t)8192);
+#endif
     return defaultPassthroughServiceImplementation<IBootControl>();
 }

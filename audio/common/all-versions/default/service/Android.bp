@@ -40,7 +40,6 @@ cc_binary {
     init_rc: ["android.hardware.audio.service.rc"],
     relative_install_path: "hw",
     vendor: true,
-
     srcs: ["service.cpp"],
 
     cflags: [
@@ -53,14 +52,49 @@ cc_binary {
         "libcutils",
         "libbinder",
         "libbinder_ndk",
+        "libhwbinder",
         "libhidlbase",
         "liblog",
         "libutils",
         "libhardware",
     ],
+    arch : {
+        arm : {
+	    cflags: [
+                "-DARCH_ARM_32",
+	    ]
+	}
+    },
 
     defaults: [
         "android_hardware_audio_config_defaults",
+    ],
+}
+
+cc_binary {
+    name: "android.hardware.audio.service_64",
+
+    init_rc: ["android.hardware.audio.service_64.rc"],
+    relative_install_path: "hw",
+    vendor: true,
+    compile_multilib: "64",
+    srcs: ["service.cpp"],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "libbinder",
+        "libbinder_ndk",
+        "libhwbinder",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+        "libhardware",
     ],
 }
 
@@ -68,4 +102,8 @@ cc_binary {
 phony {
     name: "android.hardware.audio@2.0-service",
     required: ["android.hardware.audio.service"],
+}
+phony {
+    name: "android.hardware.audio@2.0-service_64",
+    required: ["android.hardware.audio.service_64"],
 }

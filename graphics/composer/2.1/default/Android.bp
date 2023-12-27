@@ -22,6 +22,7 @@ cc_binary {
         "android.hardware.graphics.composer@2.1-resources",
         "libbase",
         "libbinder",
+        "libhwbinder",
         "libcutils",
         "libfmq",
         "libhardware",
@@ -32,4 +33,11 @@ cc_binary {
         "libsync",
         "libutils",
     ],
+    arch: {
+        arm: {
+            cflags: [
+                "-DARCH_ARM_32"
+            ],
+        },
+    },
 }

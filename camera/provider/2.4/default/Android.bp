@@ -15,6 +15,7 @@ cc_library_shared {
     shared_libs: [
         "android.hardware.camera.common@1.0",
         "android.hardware.camera.device@1.0",
+        "vendor.qti.hardware.camera.device@1.0",
         "android.hardware.camera.device@3.2",
         "android.hardware.camera.device@3.3",
         "android.hardware.camera.device@3.4",
@@ -45,6 +46,11 @@ cc_library_shared {
         "camera.device@3.5-impl_headers",
     ],
     export_include_dirs: ["."],
+    sdclang: false, // See b/163842697
+    // Since this framework module has been forked to depend on a vendor
+    // proprietary library, we exclude this module from the vendor snapshot so
+    // that it will be built from source as part of the vendor image build.
+    exclude_from_vendor_snapshot: true,
 }
 
 cc_library_shared {
@@ -88,6 +94,10 @@ cc_library_shared {
         "camera.device@3.6-external-impl_headers",
     ],
     export_include_dirs: ["."],
+    // Since this framework module has a transitive dependency  on a vendor
+    // proprietary library, we exclude this module from the vendor snapshot so
+    // that it will be built from source as part of the vendor image build.
+    exclude_from_vendor_snapshot: true,
 }
 
 cc_library_shared {
@@ -136,6 +146,10 @@ cc_library_shared {
         "android.hardware.camera.common@1.0-helper",
     ],
     export_include_dirs: ["."],
+    // Since this framework module has a transitive dependency  on a vendor
+    // proprietary library, we exclude this module from the vendor snapshot so
+    // that it will be built from source as part of the vendor image build.
+    exclude_from_vendor_snapshot: true,
 }
 
 cc_defaults {
@@ -147,6 +161,7 @@ cc_defaults {
     shared_libs: [
         "android.hardware.camera.common@1.0",
         "android.hardware.camera.device@1.0",
+        "vendor.qti.hardware.camera.device@1.0",
         "android.hardware.camera.device@3.2",
         "android.hardware.camera.device@3.3",
         "android.hardware.camera.device@3.4",
@@ -174,6 +189,10 @@ cc_defaults {
         "camera.device@3.5-external-impl_headers",
         "camera.device@3.5-impl_headers",
     ],
+    // Since this framework module has been forked to depend on a vendor
+    // proprietary library, we exclude this module from the vendor snapshot so
+    // that it will be built from source as part of the vendor image build.
+    exclude_from_vendor_snapshot: true,
 }
 
 cc_binary {
@@ -236,4 +255,8 @@ cc_binary {
         "camera.device@3.5-external-impl_headers",
         "camera.device@3.5-impl_headers",
     ],
+    // Since this framework module has a transitive dependency  on a vendor
+    // proprietary library, we exclude this module from the vendor snapshot so
+    // that it will be built from source as part of the vendor image build.
+    exclude_from_vendor_snapshot: true,
 }

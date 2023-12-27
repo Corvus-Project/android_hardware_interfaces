@@ -249,6 +249,9 @@ using ::WIFI_ERROR_UNINITIALIZED;
 using ::WIFI_ERROR_UNKNOWN;
 using ::wifi_gscan_capabilities;
 using ::wifi_hal_fn;
+using ::wifi_iface_combination;
+using ::wifi_iface_concurrency_matrix;
+using ::wifi_iface_limit;
 using ::wifi_information_element;
 using ::WIFI_INTERFACE_IBSS;
 using ::WIFI_INTERFACE_MESH;
@@ -685,6 +688,8 @@ class WifiLegacyHal {
 
     wifi_error enableWifiTxPowerLimits(const std::string& iface_name, bool enable);
 
+    std::pair<wifi_error, wifi_iface_concurrency_matrix*> getSupportedIfaceConcurrencyMatrix();
+
   private:
     // Retrieve interface handles for all the available interfaces.
     wifi_error retrieveIfaceHandles();
@@ -718,6 +723,8 @@ class WifiLegacyHal {
     // such as bring wlan0 interface up/down on start/stop HAL.
     // it may be removed once vendor HALs are updated.
     bool is_primary_;
+    // Driver supported iface combinations
+    wifi_iface_concurrency_matrix iface_concurrency_matrix_;
 };
 
 }  // namespace legacy_hal

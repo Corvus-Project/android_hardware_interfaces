@@ -52,7 +52,7 @@ IWifiChip::ChipCapabilityMask convertLegacyLoggerFeatureToHidlChipCapability(uin
         case legacy_hal::WIFI_LOGGER_POWER_EVENT_SUPPORTED:
             return HidlChipCaps::DEBUG_RING_BUFFER_POWER_EVENT;
         case legacy_hal::WIFI_LOGGER_WAKE_LOCK_SUPPORTED:
-            return HidlChipCaps::DEBUG_RING_BUFFER_WAKELOCK_EVENT;
+            return HidlChipCaps::DEBUG_HOST_WAKE_REASON_STATS;
     };
     CHECK(false) << "Unknown legacy feature: " << feature;
     return {};
@@ -156,10 +156,8 @@ bool convertLegacyFeaturesToHidlChipCapabilities(uint64_t legacy_feature_set,
         }
     }
 
-    // There are no flags for these 3 in the legacy feature set. Adding them to
+    // There is no flag for this in the legacy feature set. Adding this to
     // the set because all the current devices support it.
-    *hidl_caps |= HidlChipCaps::DEBUG_RING_BUFFER_VENDOR_DATA;
-    *hidl_caps |= HidlChipCaps::DEBUG_HOST_WAKE_REASON_STATS;
     *hidl_caps |= HidlChipCaps::DEBUG_ERROR_ALERTS;
     return true;
 }
@@ -2996,6 +2994,71 @@ bool convertLegacyRadioCombinationsMatrixToHidl(
                                           (sizeof(wifi_radio_configuration) * num_configurations));
     }
     hidl_matrix->radioCombinations = radio_combinations_vec;
+    return true;
+}
+
+bool convertLegacyIfaceMaskToIfaceConcurrencyType(
+        u32 mask, std::vector<V1_6::IfaceConcurrencyType>* types) {
+    if (!mask)
+        return false;
+
+#ifndef BIT
+#define BIT(x) (1 << (x))
+#endif
+    if (mask & BIT(WIFI_INTERFACE_TYPE_STA))
+        types->push_back(V1_6::IfaceConcurrencyType::STA);
+    if (mask & BIT(WIFI_INTERFACE_TYPE_AP))
+        types->push_back(V1_6::IfaceConcurrencyType::AP);
+    if (mask & BIT(WIFI_INTERFACE_TYPE_AP_BRIDGED))
+        types->push_back(V1_6::IfaceConcurrencyType::AP_BRIDGED);
+    if (mask & BIT(WIFI_INTERFACE_TYPE_P2P))
+        types->push_back(V1_6::IfaceConcurrencyType::P2P);
+    if (mask & BIT(WIFI_INTERFACE_TYPE_NAN))
+        types->push_back(V1_6::IfaceConcurrencyType::NAN);
+
+    return true;
+}
+
+bool convertLegacyIfaceCombinationsMatrixToChipMode(
+        legacy_hal::wifi_iface_concurrency_matrix* legacy_matrix,
+        V1_6::IWifiChip::ChipMode* chip_mode) {
+    if (!chip_mode || !legacy_matrix) {
+        LOG(ERROR) << "legacy_matrix is null";
+        return false;
+    }
+    *chip_mode = {};
+
+    int num_combinations = legacy_matrix->num_iface_combinations;
+    std::vector<V1_6::IWifiChip::ChipConcurrencyCombination> driver_Combinations_vec;
+    if (!num_combinations) {
+        LOG(ERROR) << "zero iface combinations";
+        return false;
+    }
+
+    for (int i = 0; i < num_combinations; i++) {
+        V1_6::IWifiChip::ChipConcurrencyCombination chipComb;
+        std::vector<V1_6::IWifiChip::ChipConcurrencyCombinationLimit> limits;
+        wifi_iface_combination *comb = &legacy_matrix->iface_combinations[i];
+        if (!comb->num_iface_limits)
+            continue;
+        for (u32 j = 0; j < comb->num_iface_limits; j++) {
+            V1_6::IWifiChip::ChipConcurrencyCombinationLimit chipLimit;
+            chipLimit.maxIfaces = comb->iface_limits[j].max_limit;
+            std::vector<V1_6::IfaceConcurrencyType> types;
+            if (!convertLegacyIfaceMaskToIfaceConcurrencyType(
+                    comb->iface_limits[j].iface_mask, &types)) {
+                LOG(ERROR) << "Failed to convert from iface_mask:"
+                           << comb->iface_limits[j].iface_mask;
+                return false;
+            }
+            chipLimit.types = hidl_vec(types);
+            limits.push_back(chipLimit);
+        }
+        chipComb.limits = hidl_vec(limits);
+        driver_Combinations_vec.push_back(chipComb);
+    }
+
+    chip_mode->availableCombinations = driver_Combinations_vec;
     return true;
 }
 

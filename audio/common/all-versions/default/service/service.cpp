@@ -33,6 +33,18 @@ using android::OK;
 
 using InterfacesList = std::vector<std::string>;
 
+#ifdef ARCH_ARM_32
+//default h/w binder memsize is 1 MB
+#define DEFAULT_HW_BINDER_MEM_SIZE_KB 1024
+
+size_t getHWBinderMmapSize(){
+    int32_t value = DEFAULT_HW_BINDER_MEM_SIZE_KB;
+    value = property_get_int32("persist.vendor.audio.hw.binder.size_kbyte", value);
+    ALOGD("Init hw binder with mem  size = %d  ", value);
+    return 1024 * value;
+}
+#endif
+
 /** Try to register the provided factories in the provided order.
  *  If any registers successfully, do not register any other and return true.
  *  If all fail, return false.
@@ -74,6 +86,9 @@ static bool registerExternalServiceImplementation(const std::string& libName,
 
 int main(int /* argc */, char* /* argv */ []) {
     signal(SIGPIPE, SIG_IGN);
+#ifdef ARCH_ARM_32
+    android::hardware::ProcessState::initWithMmapSize(getHWBinderMmapSize());
+#endif
 
     ::android::ProcessState::initWithDriver("/dev/vndbinder");
     // start a threadpool for vndbinder interactions

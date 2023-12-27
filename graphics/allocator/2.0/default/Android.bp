@@ -42,4 +42,11 @@ cc_binary {
         "liblog",
         "libutils",
     ],
+    arch: {
+        arm: {
+            cflags: [
+                "-DARCH_ARM_32"
+            ],
+        },
+    },
 }

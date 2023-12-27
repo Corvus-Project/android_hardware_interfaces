@@ -23,6 +23,7 @@
 #include <binder/ProcessState.h>
 #include <composer-passthrough/2.1/HwcLoader.h>
 #include <hidl/LegacySupport.h>
+#include <hwbinder/ProcessState.h>
 
 using android::hardware::graphics::composer::V2_1::IComposer;
 using android::hardware::graphics::composer::V2_1::passthrough::HwcLoader;
@@ -40,6 +41,10 @@ int main() {
                 &param) != 0) {
         ALOGE("Couldn't set SCHED_FIFO: %d", errno);
     }
+
+#ifdef ARCH_ARM_32
+    android::hardware::ProcessState::initWithMmapSize((size_t)(32768));
+#endif
 
     android::hardware::configureRpcThreadpool(4, true /* will join */);
 

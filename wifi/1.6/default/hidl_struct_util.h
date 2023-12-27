@@ -79,6 +79,9 @@ bool convertLegacyRadioCombinationsMatrixToHidl(
         V1_6::WifiRadioCombinationMatrix* hidl_matrix);
 V1_5::WifiBand convertLegacyMacBandToHidlWifiBand(uint32_t band);
 V1_6::WifiAntennaMode convertLegacyAntennaConfigurationToHidl(uint32_t antenna_cfg);
+bool convertLegacyIfaceCombinationsMatrixToChipMode(
+        legacy_hal::wifi_iface_concurrency_matrix* legacy_matrix,
+        V1_6::IWifiChip::ChipMode* chip_mode);
 
 // STA iface conversion methods.
 bool convertLegacyFeaturesToHidlStaCapabilities(uint64_t legacy_feature_set,
